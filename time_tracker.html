@@ -18,7 +18,7 @@
   .card { background: #fff; border: 0.5px solid #e0e0de; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
 
   label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
-  input[type="text"], input[type="date"], input[type="time"] {
+  input[type="text"], input[type="email"], input[type="password"], input[type="date"], input[type="time"] {
     width: 100%; padding: 9px 12px; border: 0.5px solid #e0e0de; border-radius: 8px;
     font-size: 15px; background: #fff; color: #1a1a1a; outline: none; font-family: inherit;
   }
@@ -33,6 +33,7 @@
     color: #1a1a1a; transition: background 0.12s;
   }
   button:hover { background: #f0f0ee; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
   button.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
   button.primary:hover { background: #333; }
   button.danger { color: #a32d2d; border-color: #f0c1c1; }
@@ -41,22 +42,33 @@
 
   .btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
 
-  .user-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.25rem; }
-  .user-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 16px; background: #fff; border: 0.5px solid #e0e0de;
-    border-radius: 10px; cursor: pointer; transition: background 0.1s;
+  .google-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 10px 18px; border: 0.5px solid #e0e0de; border-radius: 8px;
+    background: #fff; font-size: 15px; font-weight: 500; cursor: pointer;
+    transition: background 0.12s; margin-bottom: 1rem;
   }
-  .user-item:hover { background: #f5f5f3; }
-  .avatar {
-    width: 36px; height: 36px; border-radius: 50%; background: #e6f1fb;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 500; font-size: 13px; color: #185fa5; flex-shrink: 0; margin-right: 12px;
-  }
-  .user-name { font-size: 15px; font-weight: 500; }
+  .google-btn:hover { background: #f5f5f3; }
+
+  .divider { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; color: #bbb; font-size: 13px; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 0.5px; background: #e0e0de; }
+
+  .auth-footer { text-align: center; font-size: 13px; color: #888; margin-top: 0.75rem; }
+  .auth-footer button { font-size: 13px; border: none; background: none; padding: 0; color: #185fa5; text-decoration: underline; cursor: pointer; }
+  .auth-footer button:hover { background: none; color: #0e3f70; }
+
+  .notice { background: #e6f1fb; color: #185fa5; border-radius: 8px; padding: 12px 14px; font-size: 14px; margin-bottom: 1rem; display: none; }
 
   .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
   .top-bar-left { display: flex; align-items: center; gap: 10px; }
+
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: #e6f1fb;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 500; font-size: 13px; color: #185fa5; flex-shrink: 0;
+  }
+  .user-name { font-size: 18px; font-weight: 500; }
+  .user-email { font-size: 12px; color: #888; }
 
   .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
   .stat { background: #efefed; border-radius: 8px; padding: 14px 16px; }
@@ -85,6 +97,8 @@
 
   .error { color: #a32d2d; font-size: 13px; margin-top: 6px; display: none; }
 
+  .loading-screen { text-align: center; padding: 4rem 0; color: #888; font-size: 14px; }
+
   @media (max-width: 480px) {
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .row2 { grid-template-columns: 1fr; }
@@ -93,10 +107,12 @@
 
   @media (prefers-color-scheme: dark) {
     body { background: #1a1a1a; color: #f0f0ee; }
-    .card, .user-item, input[type="text"], input[type="date"], input[type="time"] { background: #242424; border-color: #333; color: #f0f0ee; }
-    .user-item:hover, button:hover { background: #2e2e2e; }
+    .card, .user-item, input[type="text"], input[type="email"], input[type="password"],
+    input[type="date"], input[type="time"] { background: #242424; border-color: #333; color: #f0f0ee; }
+    .google-btn { background: #242424; border-color: #333; color: #f0f0ee; }
+    .google-btn:hover, button:hover { background: #2e2e2e; }
     .stat { background: #242424; }
-    .stat-label, p.sub, .section-title, th, .user-meta { color: #888; }
+    .stat-label, p.sub, .section-title, th { color: #888; }
     tr.date-group td { background: #1e1e1e; color: #aaa; }
     td { border-color: #2e2e2e; }
     button { border-color: #444; color: #f0f0ee; }
@@ -104,26 +120,47 @@
     button.primary:hover { background: #ddd; }
     .filter-row select { background: #242424; border-color: #333; color: #f0f0ee; }
     input:focus { border-color: #666; }
+    .divider { color: #555; }
+    .divider::before, .divider::after { background: #333; }
+    .notice { background: #1a2a3a; color: #7ab3e0; }
   }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- Welcome screen -->
-  <div class="screen active" id="screen-welcome">
+  <!-- Loading -->
+  <div class="screen active" id="screen-loading">
+    <div class="loading-screen">Loading…</div>
+  </div>
+
+  <!-- Auth screen -->
+  <div class="screen" id="screen-auth">
     <h1>Time tracker</h1>
-    <p class="sub">Select your name or add yourself to get started.</p>
-    <div class="user-list" id="user-list"></div>
+    <p class="sub" id="auth-subtitle">Sign in to track your time.</p>
+    <div class="notice" id="auth-notice"></div>
     <div class="card">
+      <button class="google-btn" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
+        Continue with Google
+      </button>
+      <div class="divider">or</div>
       <div class="field">
-        <label for="new-name">Your name</label>
-        <input type="text" id="new-name" placeholder="e.g. Sarah" onkeydown="if(event.key==='Enter')createUser()" />
-        <div class="error" id="name-error">Please enter a name.</div>
+        <label for="auth-email">Email</label>
+        <input type="email" id="auth-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')handleAuth()" />
       </div>
-      <div class="btn-row">
-        <button class="primary" onclick="createUser()">Add me</button>
+      <div class="field">
+        <label for="auth-password">Password</label>
+        <input type="password" id="auth-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleAuth()" />
       </div>
+      <div class="error" id="auth-error"></div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="primary" id="auth-submit-btn" onclick="handleAuth()">Sign in</button>
+      </div>
+    </div>
+    <div class="auth-footer">
+      <span id="auth-footer-text">Don't have an account?</span>
+      <button onclick="toggleAuthMode()" id="auth-toggle-btn">Sign up</button>
     </div>
   </div>
 
@@ -132,9 +169,12 @@
     <div class="top-bar">
       <div class="top-bar-left">
         <div class="avatar" id="log-avatar"></div>
-        <div style="font-size:18px;font-weight:500" id="log-name"></div>
+        <div>
+          <div class="user-name" id="log-name"></div>
+          <div class="user-email" id="log-email"></div>
+        </div>
       </div>
-      <button class="small" onclick="switchUser()">Switch user</button>
+      <button class="small danger" onclick="signOut()">Sign out</button>
     </div>
 
     <div class="stats-grid">
@@ -169,7 +209,7 @@
         <div class="error" id="entry-error"></div>
         <div class="btn-row" style="margin-top:12px">
           <button onclick="toggleAddForm()">Cancel</button>
-          <button class="primary" onclick="saveEntry()">Save</button>
+          <button class="primary" id="save-btn" onclick="saveEntry()">Save</button>
         </div>
       </div>
     </div>
@@ -187,137 +227,240 @@
   </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  // ─── Config ───────────────────────────────────────────────────────────────
+  // Replace these with your Supabase project values (see setup instructions)
+  const SUPABASE_URL  = 'YOUR_SUPABASE_URL';
+  const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+
   let currentUser = null;
-  let entries = [];
+  let entries     = [];
+  let authMode    = 'signin';
 
-  function loadUsers() {
-    try { return JSON.parse(localStorage.getItem('tt_users') || '[]'); } catch(e) { return []; }
-  }
-  function saveUsers(users) {
-    localStorage.setItem('tt_users', JSON.stringify(users));
-  }
-  function loadEntries(userId) {
-    try { return JSON.parse(localStorage.getItem('tt_entries_' + userId) || '[]'); } catch(e) { return []; }
-  }
-  function saveEntriesData() {
-    localStorage.setItem('tt_entries_' + currentUser.id, JSON.stringify(entries));
+  // ─── Auth state ───────────────────────────────────────────────────────────
+
+  db.auth.onAuthStateChange(async (event, session) => {
+    if (session?.user) {
+      currentUser = session.user;
+      entries = await loadEntries();
+      showLog();
+    } else {
+      currentUser = null;
+      entries = [];
+      show('screen-auth');
+    }
+  });
+
+  async function signInWithGoogle() {
+    const { error } = await db.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) showAuthError(error.message);
   }
 
-  function initials(name) {
-    return name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  async function handleAuth() {
+    const email    = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    if (!email || !password) { showAuthError('Please enter your email and password.'); return; }
+
+    const btn = document.getElementById('auth-submit-btn');
+    btn.disabled = true;
+
+    let error;
+    if (authMode === 'signin') {
+      ({ error } = await db.auth.signInWithPassword({ email, password }));
+    } else {
+      ({ error } = await db.auth.signUp({
+        email, password,
+        options: { emailRedirectTo: window.location.origin }
+      }));
+      if (!error) {
+        showNotice('Check your email and click the confirmation link to activate your account.');
+        btn.disabled = false;
+        return;
+      }
+    }
+
+    btn.disabled = false;
+    if (error) showAuthError(error.message);
   }
+
+  async function signOut() {
+    await db.auth.signOut();
+  }
+
+  function toggleAuthMode() {
+    authMode = authMode === 'signin' ? 'signup' : 'signin';
+    const isSignin = authMode === 'signin';
+    document.getElementById('auth-submit-btn').textContent  = isSignin ? 'Sign in' : 'Sign up';
+    document.getElementById('auth-subtitle').textContent    = isSignin ? 'Sign in to track your time.' : 'Create your account.';
+    document.getElementById('auth-footer-text').textContent = isSignin ? "Don't have an account?" : 'Already have an account?';
+    document.getElementById('auth-toggle-btn').textContent  = isSignin ? 'Sign up' : 'Sign in';
+    hideAuthError();
+    document.getElementById('auth-notice').style.display = 'none';
+  }
+
+  // ─── Data ─────────────────────────────────────────────────────────────────
+
+  async function loadEntries() {
+    const { data, error } = await db
+      .from('time_entries')
+      .select('*')
+      .order('date', { ascending: false })
+      .order('start_time', { ascending: false });
+    if (error) { console.error(error); return []; }
+    return data || [];
+  }
+
+  async function saveEntry() {
+    const date  = document.getElementById('entry-date').value;
+    const start = document.getElementById('entry-start').value;
+    const end   = document.getElementById('entry-end').value;
+    const note  = document.getElementById('entry-note').value.trim();
+    const errEl = document.getElementById('entry-error');
+
+    if (!date || !start || !end) {
+      errEl.textContent = 'Please fill in date, time in, and time out.';
+      errEl.style.display = 'block'; return;
+    }
+    if (end <= start) {
+      errEl.textContent = 'Time out must be after time in.';
+      errEl.style.display = 'block'; return;
+    }
+    errEl.style.display = 'none';
+
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+
+    const { data, error } = await db
+      .from('time_entries')
+      .insert({ user_id: currentUser.id, date, start_time: start, end_time: end, note: note || null })
+      .select()
+      .single();
+
+    btn.disabled = false;
+
+    if (error) { errEl.textContent = 'Failed to save. Please try again.'; errEl.style.display = 'block'; console.error(error); return; }
+
+    entries.unshift(data);
+    document.getElementById('entry-start').value = '';
+    document.getElementById('entry-end').value   = '';
+    document.getElementById('entry-note').value  = '';
+    toggleAddForm();
+    populateMonthFilter();
+    renderStats();
+    renderLog();
+  }
+
+  async function deleteEntry(id) {
+    if (!confirm('Delete this entry?')) return;
+    const { error } = await db.from('time_entries').delete().eq('id', id);
+    if (error) { alert('Failed to delete. Please try again.'); console.error(error); return; }
+    entries = entries.filter(e => e.id !== id);
+    renderStats();
+    populateMonthFilter();
+    renderLog();
+  }
+
+  // ─── Display helpers ──────────────────────────────────────────────────────
 
   function show(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
   }
 
-  function renderWelcome() {
-    const users = loadUsers();
-    const list = document.getElementById('user-list');
-    if (!users.length) { list.innerHTML = ''; return; }
-    list.innerHTML = users.map(u => `
-      <div class="user-item" onclick="selectUser('${u.id}')">
-        <div style="display:flex;align-items:center;flex:1">
-          <div class="avatar">${initials(u.name)}</div>
-          <div class="user-name">${u.name}</div>
-        </div>
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-      </div>
-    `).join('');
-  }
-
-  function createUser() {
-    const nameEl = document.getElementById('new-name');
-    const errEl = document.getElementById('name-error');
-    const name = nameEl.value.trim();
-    if (!name) { errEl.style.display = 'block'; return; }
-    errEl.style.display = 'none';
-    const users = loadUsers();
-    const user = { id: 'u_' + Date.now(), name };
-    users.push(user);
-    saveUsers(users);
-    nameEl.value = '';
-    selectUser(user.id);
-  }
-
-  function selectUser(id) {
-    const users = loadUsers();
-    currentUser = users.find(u => u.id === id);
-    entries = loadEntries(id);
-    showLog();
-  }
-
-  function switchUser() {
-    currentUser = null;
-    entries = [];
-    renderWelcome();
-    show('screen-welcome');
-  }
-
   function showLog() {
     show('screen-log');
-    document.getElementById('log-avatar').textContent = initials(currentUser.name);
-    document.getElementById('log-name').textContent = currentUser.name;
-    document.getElementById('entry-date').value = new Date().toISOString().slice(0,10);
+    const name  = currentUser.user_metadata?.full_name || currentUser.email.split('@')[0];
+    const email = currentUser.email;
+    document.getElementById('log-avatar').textContent = initials(name);
+    document.getElementById('log-name').textContent   = name;
+    document.getElementById('log-email').textContent  = email;
+    document.getElementById('entry-date').value       = new Date().toISOString().slice(0, 10);
     populateMonthFilter();
     renderStats();
     renderLog();
   }
 
+  function showAuthError(msg) {
+    const el = document.getElementById('auth-error');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideAuthError() {
+    document.getElementById('auth-error').style.display = 'none';
+  }
+
+  function showNotice(msg) {
+    const el = document.getElementById('auth-notice');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function initials(name) {
+    return name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  }
+
   function calcHours(start, end) {
-    const [sh,sm] = start.split(':').map(Number);
-    const [eh,em] = end.split(':').map(Number);
-    return ((eh*60+em) - (sh*60+sm)) / 60;
+    const [sh, sm] = start.split(':').map(Number);
+    const [eh, em] = end.split(':').map(Number);
+    return ((eh * 60 + em) - (sh * 60 + sm)) / 60;
   }
 
   function fmtHours(h) {
     if (h <= 0) return '0h';
-    const hrs = Math.floor(h);
+    const hrs  = Math.floor(h);
     const mins = Math.round((h - hrs) * 60);
     if (mins === 0) return hrs + 'h';
-    if (hrs === 0) return mins + 'm';
+    if (hrs === 0)  return mins + 'm';
     return hrs + 'h ' + mins + 'm';
   }
 
   function renderStats() {
-    const now = new Date();
-    const today = now.toISOString().slice(0,10);
-    const dow = now.getDay();
-    const diff = dow === 0 ? -6 : 1 - dow;
+    const now      = new Date();
+    const today    = now.toISOString().slice(0, 10);
+    const dow      = now.getDay();
+    const diff     = dow === 0 ? -6 : 1 - dow;
     const weekStart = new Date(now);
     weekStart.setDate(now.getDate() + diff);
-    const ws = weekStart.toISOString().slice(0,10);
-    const monthPfx = today.slice(0,7);
-    let todayH=0, weekH=0, monthH=0;
+    const ws       = weekStart.toISOString().slice(0, 10);
+    const monthPfx = today.slice(0, 7);
+    let todayH = 0, weekH = 0, monthH = 0;
     entries.forEach(e => {
-      const h = calcHours(e.start, e.end);
-      if (e.date === today) todayH += h;
-      if (e.date >= ws && e.date <= today) weekH += h;
-      if (e.date.startsWith(monthPfx)) monthH += h;
+      const h = calcHours(e.start_time, e.end_time);
+      if (e.date === today)                              todayH += h;
+      if (e.date >= ws && e.date <= today)               weekH  += h;
+      if (e.date.startsWith(monthPfx))                  monthH += h;
     });
     document.getElementById('stat-today').textContent = fmtHours(todayH);
-    document.getElementById('stat-week').textContent = fmtHours(weekH);
+    document.getElementById('stat-week').textContent  = fmtHours(weekH);
     document.getElementById('stat-month').textContent = fmtHours(monthH);
   }
 
   function populateMonthFilter() {
-    const months = [...new Set(entries.map(e => e.date.slice(0,7)))].sort().reverse();
-    const sel = document.getElementById('filter-month');
-    const cur = sel.value;
+    const months = [...new Set(entries.map(e => e.date.slice(0, 7)))].sort().reverse();
+    const sel    = document.getElementById('filter-month');
+    const cur    = sel.value;
     sel.innerHTML = '<option value="">All months</option>' +
       months.map(m => {
-        const [y,mo] = m.split('-');
-        const label = new Date(+y, +mo-1, 1).toLocaleDateString('en-GB', {month:'long', year:'numeric'});
-        return `<option value="${m}"${m===cur?' selected':''}>${label}</option>`;
+        const [y, mo] = m.split('-');
+        const label = new Date(+y, +mo - 1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+        return `<option value="${m}"${m === cur ? ' selected' : ''}>${label}</option>`;
       }).join('');
   }
 
   function renderLog() {
     const filterMonth = document.getElementById('filter-month').value;
     let filtered = entries.filter(e => !filterMonth || e.date.startsWith(filterMonth));
-    filtered = [...filtered].sort((a,b) => b.date.localeCompare(a.date) || b.start.localeCompare(a.start));
+    filtered = [...filtered].sort((a, b) => b.date.localeCompare(a.date) || b.start_time.localeCompare(a.start_time));
     const wrap = document.getElementById('log-table-wrap');
     if (!filtered.length) {
       wrap.innerHTML = '<div class="empty">No entries yet — log your first session above.</div>';
@@ -327,19 +470,19 @@
     filtered.forEach(e => { if (!byDate[e.date]) byDate[e.date] = []; byDate[e.date].push(e); });
     let html = '<table><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Note</th><th></th></tr></thead><tbody>';
     Object.keys(byDate).sort().reverse().forEach(date => {
-      const rows = byDate[date];
-      const dayTotal = rows.reduce((s,e) => s + calcHours(e.start,e.end), 0);
-      const d = new Date(date + 'T12:00:00');
-      const label = d.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+      const rows     = byDate[date];
+      const dayTotal = rows.reduce((s, e) => s + calcHours(e.start_time, e.end_time), 0);
+      const d        = new Date(date + 'T12:00:00');
+      const label    = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
       html += `<tr class="date-group"><td colspan="3" style="padding:8px 10px">${label}</td><td colspan="3"><span class="total-pill">${fmtHours(dayTotal)} total</span></td></tr>`;
       rows.forEach(e => {
-        const h = calcHours(e.start, e.end);
+        const h = calcHours(e.start_time, e.end_time);
         html += `<tr>
           <td></td>
-          <td>${e.start}</td>
-          <td>${e.end}</td>
+          <td>${e.start_time.slice(0, 5)}</td>
+          <td>${e.end_time.slice(0, 5)}</td>
           <td style="font-weight:500">${fmtHours(h)}</td>
-          <td style="color:#888;font-size:13px">${e.note||''}</td>
+          <td style="color:#888;font-size:13px">${e.note || ''}</td>
           <td><button class="del-btn" onclick="deleteEntry('${e.id}')">✕</button></td>
         </tr>`;
       });
@@ -354,43 +497,6 @@
     document.getElementById('add-icon').textContent = f.classList.contains('open') ? '−' : '+';
     document.getElementById('entry-error').style.display = 'none';
   }
-
-  function saveEntry() {
-    const date = document.getElementById('entry-date').value;
-    const start = document.getElementById('entry-start').value;
-    const end = document.getElementById('entry-end').value;
-    const note = document.getElementById('entry-note').value.trim();
-    const errEl = document.getElementById('entry-error');
-    if (!date || !start || !end) {
-      errEl.textContent = 'Please fill in date, time in, and time out.';
-      errEl.style.display = 'block'; return;
-    }
-    if (end <= start) {
-      errEl.textContent = 'Time out must be after time in.';
-      errEl.style.display = 'block'; return;
-    }
-    errEl.style.display = 'none';
-    entries.push({ id: 'e_' + Date.now(), date, start, end, note });
-    saveEntriesData();
-    document.getElementById('entry-start').value = '';
-    document.getElementById('entry-end').value = '';
-    document.getElementById('entry-note').value = '';
-    toggleAddForm();
-    populateMonthFilter();
-    renderStats();
-    renderLog();
-  }
-
-  function deleteEntry(id) {
-    if (!confirm('Delete this entry?')) return;
-    entries = entries.filter(e => e.id !== id);
-    saveEntriesData();
-    renderStats();
-    populateMonthFilter();
-    renderLog();
-  }
-
-  renderWelcome();
 </script>
 </body>
 </html>
