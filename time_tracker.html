@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Tracker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; min-height: 100vh; padding: 0; color: #1a1a1a; }
+
+  .app { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.25rem; }
+  p.sub { font-size: 14px; color: #666; margin-bottom: 1.5rem; }
+
+  .card { background: #fff; border: 0.5px solid #e0e0de; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+
+  label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
+  input[type="text"], input[type="date"], input[type="time"] {
+    width: 100%; padding: 9px 12px; border: 0.5px solid #e0e0de; border-radius: 8px;
+    font-size: 15px; background: #fff; color: #1a1a1a; outline: none; font-family: inherit;
+  }
+  input:focus { border-color: #888; box-shadow: 0 0 0 2px rgba(100,100,200,0.1); }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field { margin-bottom: 12px; }
+
+  button {
+    cursor: pointer; font-family: inherit; font-size: 14px; border-radius: 8px;
+    padding: 9px 18px; border: 0.5px solid #ccc; background: transparent;
+    color: #1a1a1a; transition: background 0.12s;
+  }
+  button:hover { background: #f0f0ee; }
+  button.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  button.primary:hover { background: #333; }
+  button.danger { color: #a32d2d; border-color: #f0c1c1; }
+  button.danger:hover { background: #fdf0f0; }
+  button.small { padding: 5px 10px; font-size: 12px; }
+
+  .btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+
+  .user-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.25rem; }
+  .user-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; background: #fff; border: 0.5px solid #e0e0de;
+    border-radius: 10px; cursor: pointer; transition: background 0.1s;
+  }
+  .user-item:hover { background: #f5f5f3; }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: #e6f1fb;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 500; font-size: 13px; color: #185fa5; flex-shrink: 0; margin-right: 12px;
+  }
+  .user-name { font-size: 15px; font-weight: 500; }
+
+  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .top-bar-left { display: flex; align-items: center; gap: 10px; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .stat { background: #efefed; border-radius: 8px; padding: 14px 16px; }
+  .stat-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .stat-value { font-size: 22px; font-weight: 500; }
+
+  .section-title { font-size: 12px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 12px; color: #888; font-weight: 500; padding: 6px 10px; border-bottom: 0.5px solid #e0e0de; }
+  td { padding: 9px 10px; border-bottom: 0.5px solid #eee; }
+  tr:last-child td { border-bottom: none; }
+  tr.date-group td { background: #f5f5f3; font-weight: 500; font-size: 13px; color: #555; }
+  .total-pill { font-size: 12px; font-weight: 500; background: #e6f1fb; color: #185fa5; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
+  .empty { text-align: center; padding: 2.5rem 0; color: #888; font-size: 14px; }
+  .del-btn { opacity: 0; background: none; border: none; padding: 4px 6px; color: #a32d2d; cursor: pointer; font-size: 13px; border-radius: 4px; }
+  tr:hover .del-btn { opacity: 1; }
+
+  .add-form { display: none; margin-top: 14px; border-top: 0.5px solid #eee; padding-top: 14px; }
+  .add-form.open { display: block; }
+  .add-toggle { width: 100%; text-align: left; display: flex; align-items: center; gap: 8px; font-size: 14px; border: none; background: none; padding: 0; cursor: pointer; }
+  .add-toggle:hover { background: none; color: #555; }
+
+  .filter-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .filter-row select { padding: 7px 10px; border: 0.5px solid #e0e0de; border-radius: 8px; font-size: 13px; background: #fff; font-family: inherit; outline: none; color: #1a1a1a; cursor: pointer; }
+
+  .error { color: #a32d2d; font-size: 13px; margin-top: 6px; display: none; }
+
+  @media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .row2 { grid-template-columns: 1fr; }
+    .filter-row select { flex: 1; }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body { background: #1a1a1a; color: #f0f0ee; }
+    .card, .user-item, input[type="text"], input[type="date"], input[type="time"] { background: #242424; border-color: #333; color: #f0f0ee; }
+    .user-item:hover, button:hover { background: #2e2e2e; }
+    .stat { background: #242424; }
+    .stat-label, p.sub, .section-title, th, .user-meta { color: #888; }
+    tr.date-group td { background: #1e1e1e; color: #aaa; }
+    td { border-color: #2e2e2e; }
+    button { border-color: #444; color: #f0f0ee; }
+    button.primary { background: #f0f0ee; color: #1a1a1a; }
+    button.primary:hover { background: #ddd; }
+    .filter-row select { background: #242424; border-color: #333; color: #f0f0ee; }
+    input:focus { border-color: #666; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Welcome screen -->
+  <div class="screen active" id="screen-welcome">
+    <h1>Time tracker</h1>
+    <p class="sub">Select your name or add yourself to get started.</p>
+    <div class="user-list" id="user-list"></div>
+    <div class="card">
+      <div class="field">
+        <label for="new-name">Your name</label>
+        <input type="text" id="new-name" placeholder="e.g. Sarah" onkeydown="if(event.key==='Enter')createUser()" />
+        <div class="error" id="name-error">Please enter a name.</div>
+      </div>
+      <div class="btn-row">
+        <button class="primary" onclick="createUser()">Add me</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log screen -->
+  <div class="screen" id="screen-log">
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <div class="avatar" id="log-avatar"></div>
+        <div style="font-size:18px;font-weight:500" id="log-name"></div>
+      </div>
+      <button class="small" onclick="switchUser()">Switch user</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-label">Today</div><div class="stat-value" id="stat-today">0h</div></div>
+      <div class="stat"><div class="stat-label">This week</div><div class="stat-value" id="stat-week">0h</div></div>
+      <div class="stat"><div class="stat-label">This month</div><div class="stat-value" id="stat-month">0h</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:1.25rem">
+      <button class="add-toggle" onclick="toggleAddForm()" id="add-toggle-btn">
+        <span id="add-icon" style="font-size:18px;line-height:1;font-weight:300">+</span> Log a session
+      </button>
+      <div class="add-form" id="add-form">
+        <div class="field">
+          <label for="entry-date">Date</label>
+          <input type="date" id="entry-date" />
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="entry-start">Time in</label>
+            <input type="time" id="entry-start" />
+          </div>
+          <div class="field">
+            <label for="entry-end">Time out</label>
+            <input type="time" id="entry-end" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="entry-note">Note <span style="font-weight:400;color:#999">(optional)</span></label>
+          <input type="text" id="entry-note" placeholder="e.g. client call, deep work…" />
+        </div>
+        <div class="error" id="entry-error"></div>
+        <div class="btn-row" style="margin-top:12px">
+          <button onclick="toggleAddForm()">Cancel</button>
+          <button class="primary" onclick="saveEntry()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <select id="filter-month" onchange="renderLog()">
+        <option value="">All months</option>
+      </select>
+    </div>
+
+    <div class="section-title">Log</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div id="log-table-wrap"></div>
+    </div>
+  </div>
+
+</div>
+<script>
+  let currentUser = null;
+  let entries = [];
+
+  function loadUsers() {
+    try { return JSON.parse(localStorage.getItem('tt_users') || '[]'); } catch(e) { return []; }
+  }
+  function saveUsers(users) {
+    localStorage.setItem('tt_users', JSON.stringify(users));
+  }
+  function loadEntries(userId) {
+    try { return JSON.parse(localStorage.getItem('tt_entries_' + userId) || '[]'); } catch(e) { return []; }
+  }
+  function saveEntriesData() {
+    localStorage.setItem('tt_entries_' + currentUser.id, JSON.stringify(entries));
+  }
+
+  function initials(name) {
+    return name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  }
+
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function renderWelcome() {
+    const users = loadUsers();
+    const list = document.getElementById('user-list');
+    if (!users.length) { list.innerHTML = ''; return; }
+    list.innerHTML = users.map(u => `
+      <div class="user-item" onclick="selectUser('${u.id}')">
+        <div style="display:flex;align-items:center;flex:1">
+          <div class="avatar">${initials(u.name)}</div>
+          <div class="user-name">${u.name}</div>
+        </div>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+      </div>
+    `).join('');
+  }
+
+  function createUser() {
+    const nameEl = document.getElementById('new-name');
+    const errEl = document.getElementById('name-error');
+    const name = nameEl.value.trim();
+    if (!name) { errEl.style.display = 'block'; return; }
+    errEl.style.display = 'none';
+    const users = loadUsers();
+    const user = { id: 'u_' + Date.now(), name };
+    users.push(user);
+    saveUsers(users);
+    nameEl.value = '';
+    selectUser(user.id);
+  }
+
+  function selectUser(id) {
+    const users = loadUsers();
+    currentUser = users.find(u => u.id === id);
+    entries = loadEntries(id);
+    showLog();
+  }
+
+  function switchUser() {
+    currentUser = null;
+    entries = [];
+    renderWelcome();
+    show('screen-welcome');
+  }
+
+  function showLog() {
+    show('screen-log');
+    document.getElementById('log-avatar').textContent = initials(currentUser.name);
+    document.getElementById('log-name').textContent = currentUser.name;
+    document.getElementById('entry-date').value = new Date().toISOString().slice(0,10);
+    populateMonthFilter();
+    renderStats();
+    renderLog();
+  }
+
+  function calcHours(start, end) {
+    const [sh,sm] = start.split(':').map(Number);
+    const [eh,em] = end.split(':').map(Number);
+    return ((eh*60+em) - (sh*60+sm)) / 60;
+  }
+
+  function fmtHours(h) {
+    if (h <= 0) return '0h';
+    const hrs = Math.floor(h);
+    const mins = Math.round((h - hrs) * 60);
+    if (mins === 0) return hrs + 'h';
+    if (hrs === 0) return mins + 'm';
+    return hrs + 'h ' + mins + 'm';
+  }
+
+  function renderStats() {
+    const now = new Date();
+    const today = now.toISOString().slice(0,10);
+    const dow = now.getDay();
+    const diff = dow === 0 ? -6 : 1 - dow;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() + diff);
+    const ws = weekStart.toISOString().slice(0,10);
+    const monthPfx = today.slice(0,7);
+    let todayH=0, weekH=0, monthH=0;
+    entries.forEach(e => {
+      const h = calcHours(e.start, e.end);
+      if (e.date === today) todayH += h;
+      if (e.date >= ws && e.date <= today) weekH += h;
+      if (e.date.startsWith(monthPfx)) monthH += h;
+    });
+    document.getElementById('stat-today').textContent = fmtHours(todayH);
+    document.getElementById('stat-week').textContent = fmtHours(weekH);
+    document.getElementById('stat-month').textContent = fmtHours(monthH);
+  }
+
+  function populateMonthFilter() {
+    const months = [...new Set(entries.map(e => e.date.slice(0,7)))].sort().reverse();
+    const sel = document.getElementById('filter-month');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">All months</option>' +
+      months.map(m => {
+        const [y,mo] = m.split('-');
+        const label = new Date(+y, +mo-1, 1).toLocaleDateString('en-GB', {month:'long', year:'numeric'});
+        return `<option value="${m}"${m===cur?' selected':''}>${label}</option>`;
+      }).join('');
+  }
+
+  function renderLog() {
+    const filterMonth = document.getElementById('filter-month').value;
+    let filtered = entries.filter(e => !filterMonth || e.date.startsWith(filterMonth));
+    filtered = [...filtered].sort((a,b) => b.date.localeCompare(a.date) || b.start.localeCompare(a.start));
+    const wrap = document.getElementById('log-table-wrap');
+    if (!filtered.length) {
+      wrap.innerHTML = '<div class="empty">No entries yet — log your first session above.</div>';
+      return;
+    }
+    const byDate = {};
+    filtered.forEach(e => { if (!byDate[e.date]) byDate[e.date] = []; byDate[e.date].push(e); });
+    let html = '<table><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Note</th><th></th></tr></thead><tbody>';
+    Object.keys(byDate).sort().reverse().forEach(date => {
+      const rows = byDate[date];
+      const dayTotal = rows.reduce((s,e) => s + calcHours(e.start,e.end), 0);
+      const d = new Date(date + 'T12:00:00');
+      const label = d.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+      html += `<tr class="date-group"><td colspan="3" style="padding:8px 10px">${label}</td><td colspan="3"><span class="total-pill">${fmtHours(dayTotal)} total</span></td></tr>`;
+      rows.forEach(e => {
+        const h = calcHours(e.start, e.end);
+        html += `<tr>
+          <td></td>
+          <td>${e.start}</td>
+          <td>${e.end}</td>
+          <td style="font-weight:500">${fmtHours(h)}</td>
+          <td style="color:#888;font-size:13px">${e.note||''}</td>
+          <td><button class="del-btn" onclick="deleteEntry('${e.id}')">✕</button></td>
+        </tr>`;
+      });
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  }
+
+  function toggleAddForm() {
+    const f = document.getElementById('add-form');
+    f.classList.toggle('open');
+    document.getElementById('add-icon').textContent = f.classList.contains('open') ? '−' : '+';
+    document.getElementById('entry-error').style.display = 'none';
+  }
+
+  function saveEntry() {
+    const date = document.getElementById('entry-date').value;
+    const start = document.getElementById('entry-start').value;
+    const end = document.getElementById('entry-end').value;
+    const note = document.getElementById('entry-note').value.trim();
+    const errEl = document.getElementById('entry-error');
+    if (!date || !start || !end) {
+      errEl.textContent = 'Please fill in date, time in, and time out.';
+      errEl.style.display = 'block'; return;
+    }
+    if (end <= start) {
+      errEl.textContent = 'Time out must be after time in.';
+      errEl.style.display = 'block'; return;
+    }
+    errEl.style.display = 'none';
+    entries.push({ id: 'e_' + Date.now(), date, start, end, note });
+    saveEntriesData();
+    document.getElementById('entry-start').value = '';
+    document.getElementById('entry-end').value = '';
+    document.getElementById('entry-note').value = '';
+    toggleAddForm();
+    populateMonthFilter();
+    renderStats();
+    renderLog();
+  }
+
+  function deleteEntry(id) {
+    if (!confirm('Delete this entry?')) return;
+    entries = entries.filter(e => e.id !== id);
+    saveEntriesData();
+    renderStats();
+    populateMonthFilter();
+    renderLog();
+  }
+
+  renderWelcome();
+</script>
+</body>
+</html>
