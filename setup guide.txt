@@ -1,0 +1,46 @@
+---
+Setup guide
+
+1. Create a Supabase project
+
+1. Go to supabase.com → New project (free tier is fine)
+2. Pick a name, set a database password, choose a region
+
+2. Create the database table
+
+In Supabase → SQL Editor, run this:
+create table time_entries (
+  id         uuid default gen_random_uuid() primary key,
+  user_id    uuid references auth.users(id) on delete cascade not null,
+  date       date not null,
+  start_time time not null,
+  end_time   time not null,
+  note       text,
+  created_at timestamptz default now()
+);
+
+alter table time_entries enable row level security;
+
+create policy "Users see own entries"   on time_entries for select using (auth.uid() = user_id);
+create policy "Users insert own entries" on time_entries for insert with check (auth.uid() = user_id);
+create policy "Users delete own entries" on time_entries for delete using (auth.uid() = user_id);
+
+3. Enable Google OAuth
+
+In Supabase → Authentication → Providers → Google, enable it. You'll need a Google OAuth client ID/secret — Supabase has a guide linked right there. For the redirect URL, add http://localhost for testing and your Netlify URL later.
+
+4. Add your Supabase credentials to the HTML
+
+In Supabase → Project Settings → API, copy Project URL and anon public key, then replace the two placeholders in time_tracker.html:
+const SUPABASE_URL  = 'https://xxxx.supabase.co';
+const SUPABASE_ANON = 'eyJh...';
+Commit and push that change.
+
+5. Deploy to Netlify
+
+1. Go to netlify.com → Add new site → Import from Git → GitHub
+2. Pick your Time-Tracker-Web-App repo
+3. No build command needed — just set Publish directory to / (or leave blank)
+4. Deploy. Every future git push auto-deploys.
+
+After you have your Netlify URL (e.g. https://time-tracker-abc.netlify.app), go back to Supabase → Authentication → URL Configuration and add it as a Redirect URL.

@@ -1,0 +1,119 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; min-height: 100vh; padding: 0; color: #1a1a1a; }
+
+.app { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+.screen { display: none; }
+.screen.active { display: block; }
+
+h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.25rem; }
+p.sub { font-size: 14px; color: #666; margin-bottom: 1.5rem; }
+
+.card { background: #fff; border: 0.5px solid #e0e0de; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+
+label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
+input[type="text"], input[type="email"], input[type="password"], input[type="date"], input[type="time"] {
+  width: 100%; padding: 9px 12px; border: 0.5px solid #e0e0de; border-radius: 8px;
+  font-size: 15px; background: #fff; color: #1a1a1a; outline: none; font-family: inherit;
+}
+input:focus { border-color: #888; box-shadow: 0 0 0 2px rgba(100,100,200,0.1); }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { margin-bottom: 12px; }
+
+button {
+  cursor: pointer; font-family: inherit; font-size: 14px; border-radius: 8px;
+  padding: 9px 18px; border: 0.5px solid #ccc; background: transparent;
+  color: #1a1a1a; transition: background 0.12s;
+}
+button:hover { background: #f0f0ee; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+button.primary:hover { background: #333; }
+button.danger { color: #a32d2d; border-color: #f0c1c1; }
+button.danger:hover { background: #fdf0f0; }
+button.small { padding: 5px 10px; font-size: 12px; }
+
+.btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+
+.google-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 10px 18px; border: 0.5px solid #e0e0de; border-radius: 8px;
+  background: #fff; font-size: 15px; font-weight: 500; cursor: pointer;
+  transition: background 0.12s; margin-bottom: 1rem;
+}
+.google-btn:hover { background: #f5f5f3; }
+
+.divider { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; color: #bbb; font-size: 13px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 0.5px; background: #e0e0de; }
+
+.auth-footer { text-align: center; font-size: 13px; color: #888; margin-top: 0.75rem; }
+.auth-footer button { font-size: 13px; border: none; background: none; padding: 0; color: #185fa5; text-decoration: underline; cursor: pointer; }
+.auth-footer button:hover { background: none; color: #0e3f70; }
+
+.notice { background: #e6f1fb; color: #185fa5; border-radius: 8px; padding: 12px 14px; font-size: 14px; margin-bottom: 1rem; display: none; }
+
+.top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.top-bar-left { display: flex; align-items: center; gap: 10px; }
+
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%; background: #e6f1fb;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 500; font-size: 13px; color: #185fa5; flex-shrink: 0;
+}
+.user-name { font-size: 18px; font-weight: 500; }
+.user-email { font-size: 12px; color: #888; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+.stat { background: #efefed; border-radius: 8px; padding: 14px 16px; }
+.stat-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+.stat-value { font-size: 22px; font-weight: 500; }
+
+.section-title { font-size: 12px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-size: 12px; color: #888; font-weight: 500; padding: 6px 10px; border-bottom: 0.5px solid #e0e0de; }
+td { padding: 9px 10px; border-bottom: 0.5px solid #eee; }
+tr:last-child td { border-bottom: none; }
+tr.date-group td { background: #f5f5f3; font-weight: 500; font-size: 13px; color: #555; }
+.total-pill { font-size: 12px; font-weight: 500; background: #e6f1fb; color: #185fa5; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
+.empty { text-align: center; padding: 2.5rem 0; color: #888; font-size: 14px; }
+.del-btn { opacity: 0; background: none; border: none; padding: 4px 6px; color: #a32d2d; cursor: pointer; font-size: 13px; border-radius: 4px; }
+tr:hover .del-btn { opacity: 1; }
+
+.add-form { display: none; margin-top: 14px; border-top: 0.5px solid #eee; padding-top: 14px; }
+.add-form.open { display: block; }
+.add-toggle { width: 100%; text-align: left; display: flex; align-items: center; gap: 8px; font-size: 14px; border: none; background: none; padding: 0; cursor: pointer; }
+.add-toggle:hover { background: none; color: #555; }
+
+.filter-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.filter-row select { padding: 7px 10px; border: 0.5px solid #e0e0de; border-radius: 8px; font-size: 13px; background: #fff; font-family: inherit; outline: none; color: #1a1a1a; cursor: pointer; }
+
+.error { color: #a32d2d; font-size: 13px; margin-top: 6px; display: none; }
+
+.loading-screen { text-align: center; padding: 4rem 0; color: #888; font-size: 14px; }
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .row2 { grid-template-columns: 1fr; }
+  .filter-row select { flex: 1; }
+}
+
+@media (prefers-color-scheme: dark) {
+  body { background: #1a1a1a; color: #f0f0ee; }
+  .card, .user-item, input[type="text"], input[type="email"], input[type="password"],
+  input[type="date"], input[type="time"] { background: #242424; border-color: #333; color: #f0f0ee; }
+  .google-btn { background: #242424; border-color: #333; color: #f0f0ee; }
+  .google-btn:hover, button:hover { background: #2e2e2e; }
+  .stat { background: #242424; }
+  .stat-label, p.sub, .section-title, th { color: #888; }
+  tr.date-group td { background: #1e1e1e; color: #aaa; }
+  td { border-color: #2e2e2e; }
+  button { border-color: #444; color: #f0f0ee; }
+  button.primary { background: #f0f0ee; color: #1a1a1a; }
+  button.primary:hover { background: #ddd; }
+  .filter-row select { background: #242424; border-color: #333; color: #f0f0ee; }
+  input:focus { border-color: #666; }
+  .divider { color: #555; }
+  .divider::before, .divider::after { background: #333; }
+  .notice { background: #1a2a3a; color: #7ab3e0; }
+}
