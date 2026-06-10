@@ -1,7 +1,6 @@
 // ─── Config ───────────────────────────────────────────────────────────────
-// Replace these with your Supabase project values (see setup instructions)
-const SUPABASE_URL  = .env.local.ENV_SUPABASE_URL;
-const SUPABASE_ANON = .env.local.ENV_SUPABASE_ANON;
+const SUPABASE_URL  = 'https://bjiyzsripvxfhbidwybt.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqaXl6c3JpcHZ4ZmhiaWR3eWJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNzY3NTQsImV4cCI6MjA5NjY1Mjc1NH0.MEcG6oHzxhzhvf5KUGl6a6LpH-W4F3X2Hyg4crA4J4M';
 // ──────────────────────────────────────────────────────────────────────────
 
 const { createClient } = supabase;
