@@ -12,11 +12,19 @@ let authMode    = 'signin';
 
 // ─── Auth state ───────────────────────────────────────────────────────────
 
-// Fallback: if Supabase doesn't respond in 5s, show the auth screen
-const loadingTimeout = setTimeout(() => show('screen-auth'), 5000);
+// Fallback: if Supabase hangs for 5s, wipe the stale token and show sign-in
+const loadingTimeout = setTimeout(async () => {
+  await db.auth.signOut();
+  show('screen-auth');
+}, 5000);
 
 db.auth.onAuthStateChange(async (event, session) => {
   clearTimeout(loadingTimeout);
+  if (event === 'TOKEN_REFRESH_FAILED') {
+    await db.auth.signOut();
+    show('screen-auth');
+    return;
+  }
   if (session?.user) {
     currentUser = session.user;
     try { entries = await loadEntries(); } catch { entries = []; }
