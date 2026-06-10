@@ -5,6 +5,7 @@ Setup guide
 
 1. Go to supabase.com → New project (free tier is fine)
 2. Pick a name, set a database password, choose a region
+pw: TimeTrackerApp123
 
 2. Create the database table
 
