@@ -12,10 +12,14 @@ let authMode    = 'signin';
 
 // ─── Auth state ───────────────────────────────────────────────────────────
 
+// Fallback: if Supabase doesn't respond in 5s, show the auth screen
+const loadingTimeout = setTimeout(() => show('screen-auth'), 5000);
+
 db.auth.onAuthStateChange(async (event, session) => {
+  clearTimeout(loadingTimeout);
   if (session?.user) {
     currentUser = session.user;
-    entries = await loadEntries();
+    try { entries = await loadEntries(); } catch { entries = []; }
     showLog();
   } else {
     currentUser = null;
