@@ -12,16 +12,33 @@ let authMode    = 'signin';
 
 // ─── Auth state ───────────────────────────────────────────────────────────
 
-// Fallback: if Supabase hangs for 5s, wipe the stale token and show sign-in
-const loadingTimeout = setTimeout(async () => {
-  await db.auth.signOut();
-  show('screen-auth');
+// Fallback: if Supabase hangs for 5s, wipe the stale token and reload.
+// Supabase-js serializes all auth.* calls (incl. signOut) behind a
+// navigator.locks mutex, so if the initial session-refresh call itself
+// stalls, calling db.auth.signOut() here would just queue behind the same
+// stuck lock and never run. Clearing the storage key directly sidesteps
+// the SDK/lock entirely so the next load has nothing stale to refresh.
+const loadingTimeout = setTimeout(() => {
+  clearStoredSession();
+  if (!sessionStorage.getItem('tt-session-reset')) {
+    sessionStorage.setItem('tt-session-reset', '1');
+    location.reload();
+  } else {
+    show('screen-auth');
+  }
 }, 5000);
+
+function clearStoredSession() {
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
+    .forEach(k => localStorage.removeItem(k));
+}
 
 db.auth.onAuthStateChange(async (event, session) => {
   clearTimeout(loadingTimeout);
+  sessionStorage.removeItem('tt-session-reset');
   if (event === 'TOKEN_REFRESH_FAILED') {
-    await db.auth.signOut();
+    clearStoredSession();
     show('screen-auth');
     return;
   }
